@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2026 하반기 채팅 프로젝트.docx</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  :root{ --blue:#2b579a; --blue2:#1f4e9c; --ink:#1b1b1b; --me:#34507e; --line:#e3e1df; --hover:#eaf1fb; }
+  html,body{height:100%}
+  body{font-family:'Malgun Gothic','맑은 고딕',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+       background:#e9e8e7;color:var(--ink);display:flex;flex-direction:column;height:100vh;overflow:hidden;font-size:14px}
+  svg{display:block}
+
+  /* ── 제목 표시줄 ── */
+  .titlebar{display:flex;align-items:center;height:40px;background:var(--blue);color:#fff;flex:0 0 auto;padding:0 4px 0 10px;font-size:13px}
+  .tb-left{display:flex;align-items:center;gap:2px}
+  .brand{display:flex;align-items:center;gap:7px;font-weight:800;margin-right:10px}
+  .tb-act{display:flex;align-items:center;gap:5px;padding:5px 9px;border-radius:5px;color:#fff;opacity:.95;cursor:default}
+  .tb-act:hover{background:rgba(255,255,255,.16)}
+  .tb-act svg{width:15px;height:15px}
+  .tb-center{flex:1;display:flex;align-items:center;justify-content:center;gap:7px;opacity:.97}
+  .tb-right{display:flex}
+  .tb-right span{width:44px;height:40px;display:grid;place-items:center;font-size:12px}
+  .tb-right span:hover{background:rgba(255,255,255,.16)}
+  .tb-right .x:hover{background:#e81123}
+
+  /* ── 메뉴 막대 ── */
+  .menubar{display:flex;align-items:center;gap:2px;height:30px;background:#fff;border-bottom:1px solid var(--line);padding:0 8px;flex:0 0 auto;font-size:13px;color:#333}
+  .menubar span{padding:4px 10px;border-radius:4px;cursor:default}
+  .menubar span:hover{background:var(--hover)}
+
+  /* ── 리본 탭 ── */
+  .tabs{display:flex;align-items:center;height:34px;background:#fff;border-bottom:1px solid var(--line);padding:0 6px;flex:0 0 auto;font-size:13.5px;color:#444}
+  .tabs span{padding:8px 13px;cursor:default;position:relative}
+  .tabs span.active{color:var(--blue);font-weight:700}
+  .tabs span.active::after{content:'';position:absolute;left:10px;right:10px;bottom:-1px;height:2.5px;background:var(--blue);border-radius:2px}
+  .tabs .help{margin-left:auto;color:#888}
+
+  /* ── 도구막대(리본) ── */
+  .ribbon{display:flex;align-items:stretch;height:94px;background:#fafafa;border-bottom:1px solid var(--line);padding:6px 4px;flex:0 0 auto;overflow:hidden}
+  .grp{display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:2px 8px;border-right:1px solid #ececec}
+  .grp .controls{display:flex;align-items:center;gap:3px;flex:1}
+  .grp .glabel{font-size:11px;color:#9a9a9a;padding-top:2px}
+  .col{display:flex;flex-direction:column;gap:3px}
+
+  .ibtn{display:flex;align-items:center;gap:4px;border:none;background:none;color:#444;cursor:default;
+        padding:5px 6px;border-radius:5px;font-family:inherit;font-size:13px}
+  .ibtn:hover{background:var(--hover)}
+  .ibtn svg{width:17px;height:17px;stroke:#555}
+  .ibtn .car{font-size:9px;color:#888}
+  .ibtn.lg{flex-direction:column;gap:3px;padding:5px 9px;font-size:12px;color:#333}
+  .ibtn.lg svg{width:22px;height:22px}
+
+  .sel{display:flex;align-items:center;gap:8px;border:1px solid #d6d4d2;background:#fff;border-radius:4px;height:26px;padding:0 8px;font-size:13px;color:#333}
+  .sel .car{font-size:9px;color:#888}
+  .size{display:flex;align-items:center;border:1px solid #d6d4d2;background:#fff;border-radius:4px;height:26px;overflow:hidden}
+  .size .n{padding:0 8px;font-size:13px;min-width:30px;text-align:center}
+  .size .pm{width:24px;text-align:center;color:#555;border-left:1px solid #e3e1df}
+
+  .lbtn{width:27px;height:25px;display:grid;place-items:center;border-radius:5px;color:#333;font-size:15px}
+  .lbtn:hover{background:var(--hover)}
+  .lbtn.b{font-weight:800}.lbtn.i{font-style:italic}.lbtn.u{text-decoration:underline}.lbtn.s{text-decoration:line-through}
+  .lbtn small{font-size:10px}
+
+  .styles{display:flex;gap:6px;align-items:center}
+  .sbox{border:1px solid #dcdcdc;background:#fff;border-radius:5px;padding:6px 14px;font-size:13px;color:#333;min-width:54px;text-align:center}
+  .sbox.t1{font-size:15px;font-weight:700;color:#2a2a2a}
+  .sbox.t2{font-size:14px;font-weight:700;color:#444}
+  .sbox.active{border-color:var(--blue);box-shadow:0 0 0 1px var(--blue) inset}
+
+  /* ── 눈금자 ── */
+  .ruler{height:22px;background:#f6f6f6;border-bottom:1px solid var(--line);flex:0 0 auto;
+         background-image:repeating-linear-gradient(90deg,#d2d2d2 0 1px,transparent 1px 38px)}
+
+  /* ── 문서 ── */
+  .canvas{flex:1 1 auto;overflow-y:auto;background:#e9e8e7;padding:26px 10px 70px;position:relative}
+  .presence{position:absolute;top:14px;right:24px;background:#fff;border:1px solid var(--line);border-radius:999px;
+            padding:5px 10px 5px 7px;font-size:12px;color:#555;box-shadow:0 2px 10px rgba(0,0,0,.1);
+            display:flex;align-items:center;gap:7px;z-index:8;cursor:pointer;user-select:none}
+  .presence .dot{width:19px;height:19px;border-radius:50%;background:#46a35e;color:#fff;display:grid;place-items:center;font-size:10px;font-weight:800}
+  .presence .car{color:#999;font-size:10px}
+  .pmenu{position:absolute;top:36px;right:0;background:#fff;border:1px solid var(--line);border-radius:10px;
+         box-shadow:0 8px 24px rgba(0,0,0,.16);padding:6px;display:none;min-width:150px;z-index:9}
+  .pmenu.show{display:block}
+  .pmenu .pi{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:7px;font-size:13px;color:#333}
+  .pmenu .pi:hover{background:var(--hover)}
+  .pmenu .pi .d{width:22px;height:22px;border-radius:50%;color:#fff;display:grid;place-items:center;font-size:11px;font-weight:800}
+  .pmenu .pi.cur{background:#eef4ff}
+
+  .page{background:#fff;width:760px;max-width:94vw;min-height:1000px;margin:0 auto;
+        box-shadow:0 1px 4px rgba(0,0,0,.18),0 8px 30px rgba(0,0,0,.12);padding:70px 76px;line-height:1.9}
+  .doc-h0{font-size:13px;color:#666;margin-bottom:14px}
+  .doc-h1{font-size:23px;font-weight:800;color:var(--blue);letter-spacing:-.5px;margin-bottom:24px}
+  .doc-h2{font-size:16px;font-weight:800;color:var(--blue2);margin:22px 0 10px}
+  .doc-h2::before{content:'■ ';font-size:12px}
+  .bul{display:flex;gap:8px;margin:7px 0;text-align:justify;color:#222}
+  .bul::before{content:'•';flex:0 0 auto}
+
+  /* ── 채팅(스크롤 블록) ── */
+  .chat{max-height:236px;overflow-y:auto;margin:4px 0;padding-right:4px}
+  .chat::-webkit-scrollbar{width:8px}
+  .chat::-webkit-scrollbar-thumb{background:#d8d6d3;border-radius:4px}
+  .chat .msg{display:flex;gap:8px;margin:7px 0;animation:fadein .22s ease;color:#222}
+  .chat .msg::before{content:'•';flex:0 0 auto}
+  .chat .msg.me{color:var(--me)}
+  .chat .typing{color:#999;font-style:italic}
+  @keyframes fadein{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:none}}
+  .inputline{display:flex;gap:8px;margin:7px 0;align-items:baseline}
+  .inputline::before{content:'•';flex:0 0 auto;color:var(--me)}
+  #chatInput{border:none;outline:none;background:transparent;font-family:inherit;font-size:14px;color:var(--me);width:100%;line-height:1.9;caret-color:var(--me)}
+  #chatInput::placeholder{color:#bcb9b6}
+
+  /* ── 상태표시줄 ── */
+  .statusbar{height:24px;background:var(--blue);color:#fff;font-size:11.5px;display:flex;align-items:center;gap:18px;padding:0 14px;flex:0 0 auto}
+  .statusbar .right{margin-left:auto;display:flex;gap:14px}
+
+  .hintbar{position:fixed;left:50%;bottom:34px;transform:translateX(-50%);background:#323130;color:#fff;font-size:12px;
+           padding:8px 16px;border-radius:8px;opacity:.92;z-index:20;box-shadow:0 6px 20px rgba(0,0,0,.3)}
+  .hintbar b{color:#9ac1ff}
+
+  /* 시스템/입력중 라인 */
+  .chat .sys{color:#9a9a9a;font-size:12.5px;margin:5px 0;text-align:center}
+  /* 위장용 decoy(패닉 시 보임) */
+  .decoy{display:none}
+  .decoy .bul{color:#222}
+
+  /* 연결 상태 표시 (작게) */
+  .statuspill{position:fixed;left:14px;bottom:34px;background:#fff;border:1px solid var(--line);border-radius:999px;
+              padding:5px 12px;font-size:12px;color:#555;box-shadow:0 2px 10px rgba(0,0,0,.1);z-index:20;display:flex;align-items:center;gap:7px}
+  .statuspill .led{width:8px;height:8px;border-radius:50%;background:#bbb}
+  .statuspill.live .led{background:#2ecc71}
+  .statuspill.demo .led{background:#f39c12}
+
+  /* ── 패닉 모드: 채팅 흔적 전부 숨김 ── */
+  body.panic .chat,
+  body.panic .inputline,
+  body.panic .presence,
+  body.panic .statuspill,
+  body.panic .hintbar{display:none}
+  body.panic .decoy{display:block}
+
+  /* ── 입장 모달 ── */
+  .modal{position:fixed;inset:0;background:rgba(20,30,40,.45);backdrop-filter:blur(3px);
+         display:flex;align-items:center;justify-content:center;z-index:50}
+  .modal.hide{display:none}
+  .card{background:#fff;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.3);width:360px;max-width:92vw;padding:26px}
+  .card h2{font-size:19px;color:#1b1b1b;margin-bottom:4px}
+  .card .desc{font-size:13px;color:#888;margin-bottom:18px;line-height:1.5}
+  .card label{display:block;font-size:12px;color:#777;margin:12px 0 5px}
+  .card .rowin{display:flex;gap:8px}
+  .card input{flex:1;border:1px solid #d6d4d2;border-radius:9px;padding:11px 12px;font-size:14px;font-family:inherit;outline:none}
+  .card input:focus{border-color:var(--blue)}
+  .card #mRoom{text-transform:uppercase;letter-spacing:2px;font-weight:700}
+  .card .genbtn{border:1px solid var(--blue);color:var(--blue);background:#fff;border-radius:9px;padding:0 12px;font-size:12px;font-family:inherit;cursor:pointer;white-space:nowrap}
+  .card .enter{margin-top:20px;width:100%;border:none;background:var(--blue);color:#fff;font-weight:800;font-size:15px;
+               border-radius:11px;padding:13px;cursor:pointer;font-family:inherit}
+  .card .enter:hover{filter:brightness(1.06)}
+  .card .err{color:#e8453c;font-size:12px;margin-top:8px;min-height:14px}
+</style>
+</head>
+<body>
+
+  <!-- 제목 표시줄 -->
+  <div class="titlebar">
+    <div class="tb-left">
+      <div class="brand"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.7"><path d="M6 2h8l4 4v16H6z"/><path d="M14 2v4h4"/></svg>DocEditor</div>
+      <div class="tb-act"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M5 3h11l3 3v15H5z"/><path d="M8 3v5h7V3"/><rect x="8" y="13" width="8" height="6"/></svg>저장</div>
+      <div class="tb-act"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M6 9V3h12v6"/><rect x="4" y="9" width="16" height="8" rx="2"/><rect x="7" y="15" width="10" height="6"/></svg>인쇄</div>
+      <div class="tb-act"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 3v10m0 0l-4-4m4 4l4-4"/><path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg>내보내기</div>
+    </div>
+    <div class="tb-center">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#dce7f5" stroke-width="1.7"><path d="M6 2h8l4 4v16H6z"/><path d="M14 2v4h4"/></svg>
+      2026 하반기 채팅 프로젝트.docx
+    </div>
+    <div class="tb-right"><span>—</span><span>▢</span><span class="x">✕</span></div>
+  </div>
+
+  <!-- 메뉴 막대 -->
+  <div class="menubar"><span>파일</span><span>편집</span><span>보기</span><span>삽입</span><span>서식</span><span>도구</span><span>창</span><span>도움말</span></div>
+
+  <!-- 리본 탭 -->
+  <div class="tabs"><span class="active">홈</span><span>삽입</span><span>레이아웃</span><span>참조</span><span>검토</span><span class="help">?</span></div>
+
+  <!-- 도구막대 -->
+  <div class="ribbon">
+    <div class="grp">
+      <div class="controls">
+        <button class="ibtn lg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="8" y="3" width="8" height="4" rx="1"/><path d="M8 5H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/></svg>붙여넣기</button>
+        <div class="col">
+          <button class="ibtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="6" cy="6" r="2.4"/><circle cx="6" cy="18" r="2.4"/><path d="M8 7.5l12 9M8 16.5l12-9"/></svg></button>
+          <button class="ibtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h8"/></svg></button>
+        </div>
+      </div>
+      <div class="glabel">클립보드</div>
+    </div>
+
+    <div class="grp">
+      <div class="controls col" style="gap:5px">
+        <div style="display:flex;gap:5px;align-items:center">
+          <div class="sel">맑은 고딕 <span class="car">▾</span></div>
+          <div class="size"><span class="n">12</span><span class="pm">−</span><span class="pm">+</span></div>
+        </div>
+        <div style="display:flex;gap:1px;align-items:center">
+          <span class="lbtn b">가</span><span class="lbtn i">가</span><span class="lbtn u">가</span><span class="lbtn s">가</span>
+          <span class="lbtn"><small>가</small><sub>2</sub></span><span class="lbtn"><small>가</small><sup>2</sup></span>
+          <span class="lbtn" style="color:#c0392b">가</span><span class="lbtn" style="background:#fff3a0">가</span>
+        </div>
+      </div>
+      <div class="glabel">글꼴</div>
+    </div>
+
+    <div class="grp">
+      <div class="controls col" style="gap:5px">
+        <div style="display:flex;gap:1px">
+          <button class="ibtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 6h16M4 12h11M4 18h16"/></svg></button>
+          <button class="ibtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 6h16M7 12h10M4 18h16"/></svg></button>
+          <button class="ibtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 6h16M9 12h11M4 18h16"/></svg></button>
+          <button class="ibtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+        </div>
+        <div style="display:flex;gap:1px">
+          <button class="ibtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="5" cy="7" r="1.2"/><circle cx="5" cy="12" r="1.2"/><circle cx="5" cy="17" r="1.2"/><path d="M9 7h11M9 12h11M9 17h11"/></svg></button>
+          <button class="ibtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 7h11M9 12h11M9 17h11"/><text x="2.5" y="9" font-size="6" fill="currentColor" stroke="none">1</text><text x="2.5" y="14.5" font-size="6" fill="currentColor" stroke="none">2</text><text x="2.5" y="20" font-size="6" fill="currentColor" stroke="none">3</text></svg></button>
+          <button class="ibtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 6h16M10 12h10M10 18h10M4 12l3 3-3 3z" fill="currentColor"/></svg></button>
+          <button class="ibtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 6h16M10 12h10M10 18h10M7 9l-3 3 3 3z" fill="currentColor"/></svg></button>
+        </div>
+      </div>
+      <div class="glabel">단락</div>
+    </div>
+
+    <div class="grp">
+      <div class="controls styles">
+        <div class="sbox">본문</div>
+        <div class="sbox t1 active">제목 1</div>
+        <div class="sbox t2">제목 2</div>
+        <div class="sbox">제목 3</div>
+      </div>
+      <div class="glabel">스타일</div>
+    </div>
+
+    <div class="grp" style="border-right:none">
+      <div class="controls">
+        <button class="ibtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.5-4.5"/></svg>찾기</button>
+        <button class="ibtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 12h11a4 4 0 1 1 0 8h-2"/><path d="M8 8l-4 4 4 4"/></svg></button>
+        <button class="ibtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M20 12H9a4 4 0 1 0 0 8h2"/><path d="M16 8l4 4-4 4"/></svg></button>
+      </div>
+      <div class="glabel">편집</div>
+    </div>
+  </div>
+
+  <div class="ruler"></div>
+
+  <!-- 문서 -->
+  <div class="canvas" id="canvas">
+    <div class="presence" id="presence">
+      <span class="dot" id="pdot">홍</span>
+      <span id="pname">홍길동</span> 님이 편집 중…
+      <span class="car">▾</span>
+      <div class="pmenu" id="pmenu"></div>
+    </div>
+
+    <div class="page" id="page">
+      <div class="doc-h0">2026 하반기 · 사내 협업 도구</div>
+      <div class="doc-h1">채팅 프로젝트 — 협업 문서 사용 가이드</div>
+
+      <div class="doc-h2">1. 메시지 작성 방법</div>
+      <div class="bul">본 문서 가운데 ‘3. 진행 메모’ 항목의 입력란을 클릭하면 커서가 활성화됩니다.</div>
+      <div class="bul">작성할 내용을 입력한 뒤 Enter 키를 누르면 상대에게 전달되며, 본문 항목으로 자연스럽게 기록됩니다.</div>
+      <div class="bul">내가 입력한 항목은 글자 색이 미세하게 달라, 한눈에 본인 메시지를 구분할 수 있습니다.</div>
+
+      <div class="doc-h2">2. 대화 상대 변경</div>
+      <div class="bul">화면 우측 상단의 ‘○○ 님이 편집 중…’ 표시를 클릭하면 협업자 목록이 열립니다.</div>
+      <div class="bul">홍길동 · 이순신 · 김철수 · 박영희 중 한 명을 선택해 대화 상대를 전환할 수 있습니다.</div>
+      <div class="bul">상대별 대화 내용은 각각 따로 보관되어, 다시 선택하면 이어서 확인할 수 있습니다.</div>
+
+      <div class="doc-h2">3. 진행 메모</div>
+      <div class="chat" id="chat"></div>
+      <div class="inputline"><input id="chatInput" type="text" placeholder="여기에 입력…" autocomplete="off"></div>
+      <div class="decoy">
+        <div class="bul">팀 내 협업 도구 도입 이후, 문서 기반 의사소통의 효율이 전반적으로 향상된 것으로 확인되었다.</div>
+        <div class="bul">정기 회의록과 진행 메모를 동일 문서에서 관리함으로써 이력 추적이 용이해졌다.</div>
+        <div class="bul">향후 단계에서는 항목별 담당자 지정 및 마감 기한 관리 기능을 보완할 예정이다.</div>
+      </div>
+
+      <div class="doc-h2">4. 화면 안내</div>
+      <div class="bul">진행 메모가 일정 길이를 넘으면 해당 영역은 스크롤되는 블록으로 표시되며, 이전 내용은 위로 올려 확인합니다.</div>
+      <div class="bul">상단 도구막대와 메뉴는 일반 문서 편집기와 동일하게 보이도록 구성되어 있습니다.</div>
+    </div>
+  </div>
+
+  <div class="statusbar">
+    <span>페이지 1/1</span><span>단어 1,284개</span><span>한국어</span>
+    <div class="right"><span>맞춤법 검사 완료</span><span>100%</span></div>
+  </div>
+
+  <div class="hintbar" id="hintbar">위장 채팅 · 가운데 <b>‘3. 진행 메모’</b>에 입력 · <b>ESC</b> 누르면 채팅 숨김(다시 ESC 복구)</div>
+  <div class="statuspill" id="statuspill"><span class="led"></span><span id="statusText">연결 중…</span></div>
+
+  <!-- 입장 모달 -->
+  <div class="modal" id="modal">
+    <div class="card">
+      <h2>대화 시작</h2>
+      <div class="desc">같은 <b>방 코드</b>를 입력한 사람끼리 연결돼요. 친구에게 방 코드를 알려주면 1:1로 대화할 수 있어요.</div>
+      <label>방 코드</label>
+      <div class="rowin">
+        <input id="mRoom" maxlength="6" placeholder="예: ABCD" autocomplete="off">
+        <button class="genbtn" id="mGen">새로 만들기</button>
+      </div>
+      <label>내 이름</label>
+      <div class="rowin"><input id="mName" maxlength="20" placeholder="예: 이동근" autocomplete="off"></div>
+      <button class="enter" id="mEnter">입장하기</button>
+      <div class="err" id="mErr"></div>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.5/socket.io.min.js"></script>
+<script>
+/* ===== 설정 ===== */
+const NAMES_DEMO=[
+  {name:'홍길동',color:'#46a35e'},{name:'이순신',color:'#c0653b'},
+  {name:'김철수',color:'#3b6fc0'},{name:'박영희',color:'#b14b9a'}
+];
+const DEMO_REPLIES=['ㅇㅋㅋ','ㄹㅇ?','잠만 확인','오케이','그래서 결론이 뭐임?','ㅋㅋㅋㅋ','지금 도서관임','밥 먹고 하자','그 부분 내가 할게','오 좋은데?'];
+
+const els={
+  chat:document.getElementById('chat'),
+  input:document.getElementById('chatInput'),
+  presence:document.getElementById('presence'),
+  pmenu:document.getElementById('pmenu'),
+  pname:document.getElementById('pname'),
+  pdot:document.getElementById('pdot'),
+  page:document.getElementById('page'),
+  modal:document.getElementById('modal'),
+  mRoom:document.getElementById('mRoom'),
+  mName:document.getElementById('mName'),
+  mGen:document.getElementById('mGen'),
+  mEnter:document.getElementById('mEnter'),
+  mErr:document.getElementById('mErr'),
+  pill:document.getElementById('statuspill'),
+  pillText:document.getElementById('statusText'),
+};
+
+/* ===== localStorage (샌드박스 안전) ===== */
+const store={
+  get(k){try{return localStorage.getItem(k)}catch(e){return null}},
+  set(k,v){try{localStorage.setItem(k,v)}catch(e){}},
+};
+function uid(){return 'c'+Math.random().toString(36).slice(2,10)}
+let myCid=store.get('dc_cid'); if(!myCid){myCid=uid();store.set('dc_cid',myCid);}
+
+let mode='connecting';      // 'live' | 'demo'
+let socket=null, room='', myName='';
+
+/* ===== 화면 출력 ===== */
+function elMsg(text,mine){
+  const d=document.createElement('div');
+  d.className='msg'+(mine?' me':''); d.textContent=text;
+  els.chat.appendChild(d); els.chat.scrollTop=els.chat.scrollHeight;
+}
+function elSys(text){
+  const d=document.createElement('div'); d.className='sys'; d.textContent=text;
+  els.chat.appendChild(d); els.chat.scrollTop=els.chat.scrollHeight;
+}
+function clearChat(){els.chat.innerHTML='';}
+function setPill(kind,text){
+  els.pill.className='statuspill '+kind; els.pillText.textContent=text;
+}
+function setPresenceName(name,color){
+  els.pname.textContent=name; els.pdot.textContent=(name||'?')[0];
+  if(color) els.pdot.style.background=color;
+}
+
+/* ===== LIVE 모드 (실시간 서버) ===== */
+function startLive(){
+  mode='live';
+  clearChat();
+  setPill('live','연결됨 · 방 '+room);
+  socket.emit('join',{room,name:myName,cid:myCid});
+  setPresenceName('상대 기다리는 중…');
+}
+function bindSocket(){
+  socket.on('history',list=>{
+    clearChat();
+    (list||[]).forEach(m=>elMsg(m.text, m.cid===myCid));
+  });
+  socket.on('message',m=>elMsg(m.text, m.cid===myCid));
+  socket.on('system',m=>elSys(m.text));
+  socket.on('presence',d=>{
+    const others=(d.users||[]).filter(n=>n!==myName);
+    setPresenceName(others.length?others[others.length-1]:'상대 기다리는 중…');
+  });
+  socket.on('typing',d=>{/* 간단화: 표시 생략 */});
+  socket.on('disconnect',()=>setPill('demo','연결 끊김 — 재연결 시도 중…'));
+}
+
+/* ===== DEMO 모드 (서버 없을 때 오프라인 시연) ===== */
+let demoCur='홍길동';
+const demoThreads={'홍길동':[{me:false,t:'오 문서 들어왔네 ㅋㅋ'}],'이순신':[{me:false,t:'회의 자료 봤음?'}],'김철수':[{me:false,t:'ㅇㅇ 여기 있음'}],'박영희':[{me:false,t:'안녕하세요 :)'}]};
+function startDemo(){
+  mode='demo';
+  setPill('demo','데모 모드 (오프라인)');
+  els.presence.style.cursor='pointer';
+  buildDemoMenu(); renderDemo();
+}
+function renderDemo(){
+  clearChat();
+  demoThreads[demoCur].forEach(m=>elMsg(m.t,m.me));
+  const c=NAMES_DEMO.find(n=>n.name===demoCur);
+  setPresenceName(demoCur,c&&c.color);
+}
+function demoSend(text){
+  demoThreads[demoCur].push({me:true,t:text}); elMsg(text,true);
+  const who=demoCur;
+  setTimeout(()=>{ if(demoCur!==who)return;
+    const r=DEMO_REPLIES[Math.floor(Math.random()*DEMO_REPLIES.length)];
+    demoThreads[who].push({me:false,t:r}); if(demoCur===who) elMsg(r,false);
+  },900+Math.random()*1200);
+}
+function buildDemoMenu(){
+  els.pmenu.innerHTML='';
+  NAMES_DEMO.forEach(p=>{
+    const it=document.createElement('div');
+    it.className='pi'+(p.name===demoCur?' cur':'');
+    it.innerHTML='<span class="d" style="background:'+p.color+'">'+p.name[0]+'</span>'+p.name;
+    it.onclick=e=>{e.stopPropagation();demoCur=p.name;els.pmenu.classList.remove('show');buildDemoMenu();renderDemo();els.input.focus();};
+    els.pmenu.appendChild(it);
+  });
+}
+
+/* ===== 입력 ===== */
+els.input.addEventListener('keydown',e=>{
+  if(e.key==='Enter'){
+    const v=els.input.value.trim(); if(!v)return;
+    els.input.value='';
+    if(mode==='live'){ socket.emit('message',{room,text:v,cid:myCid}); }
+    else { demoSend(v); }
+  }
+});
+els.page.addEventListener('click',e=>{ if(e.target.tagName!=='INPUT') els.input.focus(); });
+
+/* presence 클릭: demo면 상대 변경 메뉴 */
+els.presence.addEventListener('click',e=>{
+  e.stopPropagation();
+  if(mode==='demo') els.pmenu.classList.toggle('show');
+});
+document.addEventListener('click',()=>els.pmenu.classList.remove('show'));
+
+/* ===== 패닉 키 (ESC) ===== */
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){
+    e.preventDefault();
+    document.body.classList.toggle('panic');
+    if(!document.body.classList.contains('panic')) els.input.focus();
+  }
+});
+
+/* ===== 입장 모달 ===== */
+function randCode(){let s='';for(let i=0;i<4;i++)s+='ABCDEFGHJKLMNPQRSTUVWXYZ'[Math.floor(Math.random()*24)];return s;}
+els.mGen.onclick=()=>{els.mRoom.value=randCode();};
+function doEnter(){
+  const r=(els.mRoom.value||'').trim().toUpperCase();
+  const n=(els.mName.value||'').trim();
+  if(r.length<3){els.mErr.textContent='방 코드를 3자 이상 입력하세요.';return;}
+  if(!n){els.mErr.textContent='이름을 입력하세요.';return;}
+  room=r; myName=n;
+  store.set('dc_room',r); store.set('dc_name',n);
+  els.modal.classList.add('hide');
+  connect();
+}
+els.mEnter.onclick=doEnter;
+els.mRoom.addEventListener('keydown',e=>{if(e.key==='Enter')els.mName.focus();});
+els.mName.addEventListener('keydown',e=>{if(e.key==='Enter')doEnter();});
+
+/* ===== 연결 시도 → 실패하면 데모 ===== */
+function connect(){
+  if(typeof io==='undefined'){ startDemo(); return; }   // 소켓 라이브러리 없음(오프라인/미리보기)
+  setPill('','연결 중…');
+  try{
+    socket=io({reconnection:true,timeout:4000});
+    bindSocket();
+    let settled=false;
+    socket.on('connect',()=>{ settled=true; startLive(); els.input.focus(); });
+    socket.on('connect_error',()=>{ if(!settled){settled=true; socket.close(); startDemo();} });
+    setTimeout(()=>{ if(!settled){settled=true; try{socket.close()}catch(_){}; startDemo(); } },4500);
+  }catch(err){ startDemo(); }
+}
+
+/* ===== 시작 ===== */
+window.addEventListener('load',()=>{
+  const savedRoom=store.get('dc_room'), savedName=store.get('dc_name');
+  if(savedRoom && savedName){            // 새로고침 → 자동 재입장(대화 유지)
+    room=savedRoom; myName=savedName;
+    els.modal.classList.add('hide');
+    connect();
+  }else{
+    els.mName.value=savedName||'';
+    els.modal.classList.remove('hide');
+    setPill('','입장 대기 중');
+    els.mRoom.focus();
+  }
+});
+</script>
+</body>
+</html>
