@@ -87,6 +87,12 @@
   .pmenu .pi:hover{background:var(--hover)}
   .pmenu .pi .d{width:22px;height:22px;border-radius:50%;color:#fff;display:grid;place-items:center;font-size:11px;font-weight:800}
   .pmenu .pi.cur{background:#eef4ff}
+  .pmenu-head{padding:8px 10px 2px;font-size:13px;color:#555}
+  .pmenu-head b{color:#1b1b1b;letter-spacing:1px}
+  .pmenu-sub{padding:0 10px 6px;font-size:11px;color:#9a9a9a;line-height:1.4}
+  .pmenu-div{height:1px;background:var(--line);margin:5px 4px}
+  .pmenu .pi.leave{color:#e8453c;font-weight:700}
+  .pmenu .pi.leave .d{font-size:13px}
 
   .page{background:#fff;width:760px;max-width:94vw;min-height:1000px;margin:0 auto;
         box-shadow:0 1px 4px rgba(0,0,0,.18),0 8px 30px rgba(0,0,0,.12);padding:70px 76px;line-height:1.9}
@@ -269,9 +275,9 @@
       <div class="bul">내가 입력한 항목은 글자 색이 미세하게 달라, 한눈에 본인 메시지를 구분할 수 있습니다.</div>
 
       <div class="doc-h2">2. 대화 상대 변경</div>
-      <div class="bul">화면 우측 상단의 ‘○○ 님이 편집 중…’ 표시를 클릭하면 협업자 목록이 열립니다.</div>
-      <div class="bul">홍길동 · 이순신 · 김철수 · 박영희 중 한 명을 선택해 대화 상대를 전환할 수 있습니다.</div>
-      <div class="bul">상대별 대화 내용은 각각 따로 보관되어, 다시 선택하면 이어서 확인할 수 있습니다.</div>
+      <div class="bul">화면 우측 상단의 ‘○○ 님이 편집 중…’ 표시를 클릭하면 현재 방 정보와 메뉴가 열립니다.</div>
+      <div class="bul">같은 방 코드를 입력한 사람끼리 실시간으로 연결되며, 상대를 바꾸려면 방을 나가서 다른 코드로 다시 들어갑니다.</div>
+      <div class="bul">메뉴의 ‘방 나가기’를 누르면 처음 입장 화면으로 돌아갑니다.</div>
 
       <div class="doc-h2">3. 진행 메모</div>
       <div class="chat" id="chat"></div>
@@ -344,6 +350,7 @@ const els={
 const store={
   get(k){try{return localStorage.getItem(k)}catch(e){return null}},
   set(k,v){try{localStorage.setItem(k,v)}catch(e){}},
+  del(k){try{localStorage.removeItem(k)}catch(e){}},
 };
 function uid(){return 'c'+Math.random().toString(36).slice(2,10)}
 let myCid=store.get('dc_cid'); if(!myCid){myCid=uid();store.set('dc_cid',myCid);}
@@ -400,7 +407,7 @@ function startDemo(){
   mode='demo';
   setPill('demo','데모 모드 (오프라인)');
   els.presence.style.cursor='pointer';
-  buildDemoMenu(); renderDemo();
+  renderDemo();
 }
 function renderDemo(){
   clearChat();
@@ -416,15 +423,51 @@ function demoSend(text){
     demoThreads[who].push({me:false,t:r}); if(demoCur===who) elMsg(r,false);
   },900+Math.random()*1200);
 }
-function buildDemoMenu(){
+
+/* ===== 편집중 메뉴 (방 정보 / 상대 / 나가기) ===== */
+function buildMenu(){
   els.pmenu.innerHTML='';
-  NAMES_DEMO.forEach(p=>{
-    const it=document.createElement('div');
-    it.className='pi'+(p.name===demoCur?' cur':'');
-    it.innerHTML='<span class="d" style="background:'+p.color+'">'+p.name[0]+'</span>'+p.name;
-    it.onclick=e=>{e.stopPropagation();demoCur=p.name;els.pmenu.classList.remove('show');buildDemoMenu();renderDemo();els.input.focus();};
-    els.pmenu.appendChild(it);
-  });
+  if(mode==='demo'){
+    // 오프라인 데모: 가짜 상대 전환
+    NAMES_DEMO.forEach(p=>{
+      const it=document.createElement('div');
+      it.className='pi'+(p.name===demoCur?' cur':'');
+      it.innerHTML='<span class="d" style="background:'+p.color+'">'+p.name[0]+'</span>'+p.name;
+      it.onclick=e=>{e.stopPropagation();demoCur=p.name;els.pmenu.classList.remove('show');renderDemo();els.input.focus();};
+      els.pmenu.appendChild(it);
+    });
+  }else{
+    // 실시간: 현재 방 정보
+    const head=document.createElement('div');
+    head.className='pmenu-head';
+    head.innerHTML='현재 방 <b>'+(room||'-')+'</b>';
+    els.pmenu.appendChild(head);
+    const hint=document.createElement('div');
+    hint.className='pmenu-sub';
+    hint.textContent='다른 사람과 대화하려면 방을 나가서 다른 코드로 들어가세요.';
+    els.pmenu.appendChild(hint);
+  }
+  // 공통: 방 나가기
+  const div=document.createElement('div'); div.className='pmenu-div'; els.pmenu.appendChild(div);
+  const leave=document.createElement('div');
+  leave.className='pi leave';
+  leave.innerHTML='<span class="d" style="background:#e8453c">↩</span>방 나가기';
+  leave.onclick=e=>{ e.stopPropagation(); leaveRoom(); };
+  els.pmenu.appendChild(leave);
+}
+
+function leaveRoom(){
+  store.del('dc_room'); store.del('dc_name');     // 저장된 방 지움(자동 재입장 해제)
+  if(socket){ try{ socket.disconnect(); }catch(e){} socket=null; }
+  mode='connecting'; room='';
+  clearChat();
+  els.pmenu.classList.remove('show');
+  document.body.classList.remove('panic');
+  setPresenceName('홍길동');                       // 표시 초기화
+  els.mRoom.value='';
+  els.modal.classList.remove('hide');              // 처음 입장 화면으로
+  setPill('','입장 대기 중');
+  setTimeout(()=>els.mRoom.focus(),50);
 }
 
 /* ===== 입력 ===== */
@@ -438,10 +481,11 @@ els.input.addEventListener('keydown',e=>{
 });
 els.page.addEventListener('click',e=>{ if(e.target.tagName!=='INPUT') els.input.focus(); });
 
-/* presence 클릭: demo면 상대 변경 메뉴 */
+/* presence 클릭: 방 정보/상대/나가기 메뉴 */
 els.presence.addEventListener('click',e=>{
   e.stopPropagation();
-  if(mode==='demo') els.pmenu.classList.toggle('show');
+  buildMenu();
+  els.pmenu.classList.toggle('show');
 });
 document.addEventListener('click',()=>els.pmenu.classList.remove('show'));
 
